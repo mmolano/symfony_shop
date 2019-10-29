@@ -1,0 +1,19 @@
+
+
+{% block body %}
+
+    <div class="container">
+
+        {{ form_start(form) }}
+        <div class="row">
+            <div class="col-md-4">{{ form_row(form.title) }}</div>
+            <div class="col-md-4">{{ form_row(form.description) }}</div>
+            <div class="col-md-4">{{ form_row(form.price) }}</div>
+        </div>
+        {{ form_rest(form) }}
+        <button class="btn btn-primary">{{ button|default ('Enregister') }}</button>
+        {{ form_end(form) }}
+
+    </div>
+
+{% endblock %}
