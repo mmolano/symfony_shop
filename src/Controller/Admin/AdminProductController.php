@@ -5,6 +5,7 @@ use App\Entity\Product;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\ProductType;
@@ -33,7 +34,10 @@ class AdminProductController extends AbstractController
     public function index()
     {
         $products = $this->repository->findAll();
-        return $this->render('admin/product/index.html.twig', compact('products'));
+        return $this->render('admin/product/index.html.twig',[
+            'current_menu' => 'admin',
+            'products' => $products,
+        ]);
     }
 
     /**
@@ -49,7 +53,8 @@ class AdminProductController extends AbstractController
       if($form->isSubmitted() && $form->isValid()){
         $this->em->persist($product);
         $this->em->flush();
-        return $this->redirectToRoute('admin.product.index');
+          $this->addFlash('success', 'Produit créé avec succès.');
+          return $this->redirectToRoute('admin.product.index');
       }
       return $this->render('admin/product/new.html.twig', [
           'product' => $product,
@@ -61,7 +66,7 @@ class AdminProductController extends AbstractController
      * @param Product $product
      * @param Request $request
      * @return Response
-     * @Route("/admin/product/{id}", name="admin.product.edit")
+     * @Route("/admin/product/{id}", name="admin.product.edit", methods="GET|POST")
      */
     public function edit(Product $product, Request $request)
     {
@@ -70,11 +75,27 @@ class AdminProductController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()){
           $this->em->flush();
-          return $this->redirectToRoute('admin.product.index');
+            $this->addFlash('success', 'Produit modifié avec succès.');
+            return $this->redirectToRoute('admin.product.index');
         }
         return $this->render('admin/product/edit.html.twig', [
             'product' => $product,
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @Route("admin/product/{id}", name="admin.product.delete", methods="DELETE")
+     * @param Product $product
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function delete(Product $product, Request $request){
+        if($this->isCsrfTokenValid('delete' . $product->getId(), $request->get('_token'))){
+            $this->em->remove($product);
+            $this->em->flush();
+            $this->addFlash('success', 'Produit supprimé avec succès.');
+        };
+        return $this->redirectToRoute('admin.product.index');
     }
 }

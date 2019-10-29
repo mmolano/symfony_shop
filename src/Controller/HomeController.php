@@ -17,7 +17,7 @@ class HomeController extends AbstractController{
    * 
    */
   public function index(ProductRepository $repository): Response{
-    $products = $repository->findLatest();
+    $products = $repository->findBy(array(), array('price' => 'desc'));
     return $this->render('pages/home.html.twig', [
       'products' => $products
     ]);
